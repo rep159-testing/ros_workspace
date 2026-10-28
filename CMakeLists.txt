@@ -61,10 +61,29 @@ else()
   ament_environment_hooks("${LIBRARY_PATH_HOOK}" "${PYTHONPATH_HOOK}" ${MULTIARCH_LIBRARY_PATH_HOOK})
 endif()
 
-# skip using ament_index/resource_index/parent_prefix_path
-# if for Debian packages it is known that there are no underlays
-# note the template only checks for an empty (use) / non-empty (skip) string
-set(SKIP_PARENT_PREFIX_PATH "SKIP_PARENT_PREFIX_PATH")
+# Underlay chaining for REP-159:
+# Standard ROS Debian packages hardcoded SKIP_PARENT_PREFIX_PATH to skip underlay discovery.
+# In REP-159 extended distributions, downstream workspaces (e.g. composablebin) must chain
+# parent underlays (e.g. /opt/ros/composable).
+option(DISABLE_PARENT_PREFIX_PATH "Disable parent_prefix_path underlay discovery" OFF)
+if(DISABLE_PARENT_PREFIX_PATH)
+  set(SKIP_PARENT_PREFIX_PATH "SKIP_PARENT_PREFIX_PATH")
+else()
+  set(SKIP_PARENT_PREFIX_PATH "")
+endif()
+
+# If an explicit parent prefix path is provided at configure time (either via
+# PARENT_PREFIX_PATH or bloom's ROS_WORKSPACE_PARENT_PREFIX_PATH), register it
+# into the ament resource index so setup.sh chains parent underlays immediately.
+if(NOT PARENT_PREFIX_PATH AND ROS_WORKSPACE_PARENT_PREFIX_PATH)
+  set(PARENT_PREFIX_PATH "${ROS_WORKSPACE_PARENT_PREFIX_PATH}")
+endif()
+
+if(PARENT_PREFIX_PATH)
+  # CMake list might be semicolon-separated; ament parent_prefix_path expects colon-separated paths in setup.sh
+  string(REPLACE ";" ":" PARENT_PREFIX_PATH_COLON "${PARENT_PREFIX_PATH}")
+  ament_index_register_resource("parent_prefix_path" CONTENT "${PARENT_PREFIX_PATH_COLON}")
+endif()
 
 ament_package()
 ament_generate_environment()
