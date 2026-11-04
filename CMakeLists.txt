@@ -113,7 +113,6 @@ if(ROS_WORKSPACE_PARENT_PREFIX_PATH)
   # so set it to exactly the parents, whatever the build environment holds.
   string(REPLACE ";" ":" _parent_prefix_path "${ROS_WORKSPACE_PARENT_PREFIX_PATH}")
   set(ENV{AMENT_PREFIX_PATH} "${_parent_prefix_path}")
-  ament_index_register_resource("parent_prefix_path" CONTENT "${_parent_prefix_path}")
 endif()
 
 ament_package()
