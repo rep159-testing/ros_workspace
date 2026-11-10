@@ -8,6 +8,11 @@ find_package(ament_cmake_core REQUIRED)
 # distribution; a root distribution leaves the list empty.
 set(ROS_WORKSPACE_PARENT_PREFIX_PATH "" CACHE STRING
   "Install prefixes of the binary_import parent distributions, nearest first")
+set(PARENT_PREFIX_PATH "" CACHE STRING
+  "Alias for ROS_WORKSPACE_PARENT_PREFIX_PATH")
+if(NOT ROS_WORKSPACE_PARENT_PREFIX_PATH AND PARENT_PREFIX_PATH)
+  set(ROS_WORKSPACE_PARENT_PREFIX_PATH "${PARENT_PREFIX_PATH}")
+endif()
 
 # Collect current python 3 version
 execute_process(COMMAND python3 -c "from distutils import sysconfig; print(sysconfig.get_python_version())" OUTPUT_VARIABLE PYTHON_MAJOR_MINOR OUTPUT_STRIP_TRAILING_WHITESPACE)
